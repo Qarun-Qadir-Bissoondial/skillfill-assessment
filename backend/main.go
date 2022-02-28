@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"skillfill-backend/database"
 
 	firebase "firebase.google.com/go"
 	"github.com/gin-gonic/gin"
@@ -42,7 +43,12 @@ func main() {
 		panic("Could not authenticate Admin User")
 	}
 
-	dbClient, err := app.Database(context.Background())
+	var database database.Database
+	err = database.InitDB(app)
+	if err != nil {
+		panic("Could not initialize Firebase Database")
+	}
+
 	if err != nil {
 		log.Fatalln(err)
 		panic("Could not connect to Firebase Database")
@@ -52,28 +58,33 @@ func main() {
 	r.GET("/quiz", func(c *gin.Context) {
 		quiz := Quiz{}
 		quizID := c.Query("quizID")
-		dbClient.NewRef("/quiz/"+quizID).Get(context.Background(), &quiz)
+		err := database.Fetch("/quiz/"+quizID, &quiz)
+		if err != nil {
+			c.JSON(500, err)
+		}
 		c.JSON(200, quiz)
 	})
 
 	r.GET("/question", func(c *gin.Context) {
 		question := Question{}
 		questionID := c.Query("questionID")
-		dbClient.NewRef("/questions/"+questionID).Get(context.Background(), &question)
-		log.Println(question)
+		err := database.Fetch("/questions/"+questionID, &question)
+		if err != nil {
+			c.JSON(500, err)
+		}
 		c.JSON(200, question)
 	})
 
 	r.PUT("/submit-question", func(c *gin.Context) {
 		s := SubmittedAnswer{}
-		c.BindJSON(&s)
 		b := map[string]int{}
+		c.BindJSON(&s)
 		b[s.QuestionID] = s.Submitted
 		log.Println(b)
-		err := dbClient.NewRef(fmt.Sprintf("/submitted/%s/", s.QuizID)).Set(context.Background(), b)
+		err := database.Set(fmt.Sprintf("/submitted/%s/", s.QuizID), b)
 		if err != nil {
 			c.JSON(400, map[string]string{
-				"message": "check your params",
+				"message": "bad data",
 			})
 		}
 		c.JSON(200, map[string]string{
