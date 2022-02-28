@@ -42,3 +42,7 @@ testem.log
 Thumbs.db
 
 backend/p_key.json
+# Firebase
+.firebase
+*-debug.log
+.runtimeconfig.json
