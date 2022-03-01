@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { QuizListComponent } from './quiz-list/quiz-list.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -11,7 +12,8 @@ import { MatCardModule } from '@angular/material/card';
   imports: [
     CommonModule,
     MatToolbarModule,
-    MatCardModule
+    MatCardModule,
+    MatButtonModule
   ],
   exports: [
     QuizListComponent

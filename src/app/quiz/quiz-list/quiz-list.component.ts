@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/auth.service';
+import { Observable } from 'rxjs';
+import { QuizList } from 'src/app/models/models';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-quiz-list',
@@ -7,10 +9,12 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./quiz-list.component.sass']
 })
 export class QuizListComponent implements OnInit {
+  quizList: Observable<QuizList>
 
-  constructor(private auth: AuthService) {}
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
+    this.quizList = this.api.getQuizList()
   }
 
 }

@@ -3,7 +3,18 @@
 </mat-toolbar>
 
 <main class="my-3 p-2">
-    <mat-card>
+    <mat-card *ngFor="let quiz of quizList | async | keyvalue">
+        <mat-card-header>
+            <mat-card-title>{{quiz.value.name}}</mat-card-title>
+            <mat-card-subtitle class="mt-2">{{quiz.value.questions.length}} questions. Time Limit: {{quiz.value.timeLimit}} seconds</mat-card-subtitle>
+        </mat-card-header>
 
+        <mat-card-content class="px-3">
+            <p>{{quiz.value.description}}</p>
+        </mat-card-content>
+
+        <mat-card-actions class="py-2 mx-2 text-center border-top">
+            <button mat-raised-button color="primary">Start</button>
+        </mat-card-actions>
     </mat-card>
 </main>

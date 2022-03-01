@@ -15,6 +15,17 @@ func (h *Handler) Init() {
 	h.router = gin.Default()
 }
 
+func (h *Handler) GetQuizList(database database.Database) func(*gin.Context) {
+	return func(c *gin.Context) {
+		quizList := models.QuizList{}
+		err := database.Fetch("/quiz", &quizList)
+		if err != nil {
+			c.JSON(500, err)
+		}
+		c.JSON(200, quizList)
+	}
+}
+
 func (h *Handler) GetQuiz(database database.Database) func(*gin.Context) {
 	return func(c *gin.Context) {
 		quiz := models.Quiz{}

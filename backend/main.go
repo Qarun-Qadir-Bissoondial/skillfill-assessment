@@ -6,6 +6,7 @@ import (
 	"skillfill-backend/routehandler"
 
 	firebase "firebase.google.com/go"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/api/option"
 )
@@ -29,6 +30,11 @@ func main() {
 	var handler routehandler.Handler
 	handler.Init()
 	r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"http://localhost:4200"},
+		AllowMethods: []string{"GET", "POST"},
+	}))
+	r.GET("/quizList", handler.GetQuizList(fbDatabase))
 	r.GET("/quiz", handler.GetQuiz(fbDatabase))
 	r.GET("/question", handler.GetQuestion(fbDatabase))
 	r.PUT("/submit-question", handler.SubmitAnswer(fbDatabase))

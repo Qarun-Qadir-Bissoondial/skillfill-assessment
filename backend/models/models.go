@@ -9,6 +9,8 @@ type Quiz struct {
 	Score       int      `json:"score,omitempty"`
 }
 
+type QuizList map[string]Quiz
+
 type Question struct {
 	Id              string   `json:"id"`
 	Body            string   `json:"body"`
