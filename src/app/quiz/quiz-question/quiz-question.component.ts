@@ -87,8 +87,6 @@ export class QuizQuestionComponent implements OnInit {
   }
 
   private submitAnswer(action: 'next' | 'prev') {
-    
-
     let selected: number[];
 
     if (this.currentQuestion.correctAnswer.length === 1) {
@@ -116,7 +114,7 @@ export class QuizQuestionComponent implements OnInit {
       quiz: this.quiz.id,
       submittedAnswer: selected
     }).pipe(concatMap(() => {
-      if (this.currentQuestionIndex === this.quiz.questions.length - 1) {
+      if (this.currentQuestionIndex === this.quiz.questions.length - 1 && action == 'next') {
         return of({
           question: {
             body: 'finished'
