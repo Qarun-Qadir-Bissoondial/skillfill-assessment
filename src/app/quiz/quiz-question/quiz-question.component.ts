@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectionList } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { concatMap, forkJoin, interval, map, Observable, of, startWith, tap, timer } from 'rxjs';
+import { concatMap, forkJoin, map, Observable, of, tap, timer } from 'rxjs';
 import { Question, Quiz } from 'src/app/models/models';
 import { ApiService } from 'src/app/services/api.service';
 
@@ -19,7 +19,7 @@ const numSort = (a: number, b: number) => {
   styleUrls: ['./quiz-question.component.sass'],
 })
 export class QuizQuestionComponent implements OnInit {
-  @ViewChild('answers', { static: false }) answerSelection: MatSelectionList;
+  @ViewChild('multipleAnswers', { static: false }) multipleSelection: MatSelectionList;
   quizID: string
   quiz: Quiz;
   loading = true;
@@ -66,26 +66,36 @@ export class QuizQuestionComponent implements OnInit {
         this.loading = false;
         this.questionLoading = false;
         setTimeout(() => {
-          for (const answer of response.submittedAnswer) {
-            for (const option of this.answerSelection.options) {
-              if (option.value === answer) {
-                option.toggle();
-              }
-            }
-          }
+          this.populateExistingAnswers(response.submittedAnswer);
         }, 50)
       }
     });
   }
 
   private submitAnswer(action: 'next' | 'prev') {
-    this.questionLoading = true;
+    
 
-    const selected = this.answerSelection.selectedOptions.selected
+    let selected: number[];
+
+    if (this.currentQuestion.correctAnswer.length === 1) {
+      selected = Array
+      .from(document.querySelectorAll<HTMLElement>('mat-radio-button'))
+      .map((e, index) => {
+        if (e.classList.contains('mat-radio-checked')) {
+          return index
+        } else {
+          return false
+        }
+      }).filter(e => e !== false) as number[]
+    } else {
+      selected = this.multipleSelection.selectedOptions.selected
       .map<number>(s => s.value)
       .sort(numSort);
+      this.multipleSelection.deselectAll();
+    }
 
-    this.answerSelection.deselectAll();
+    this.questionLoading = true;
+    console.log(selected);
 
     this.api.submitQuestion({
       question: this.currentQuestion.id,
@@ -121,13 +131,7 @@ export class QuizQuestionComponent implements OnInit {
           this.currentQuestion = response.question;
           this.questionLoading = false
           setTimeout(() => {
-            for (const answer of response.submittedAnswer) {
-              for (const option of this.answerSelection.options) {
-                if (option.value === answer) {
-                  option.toggle();
-                }
-              }
-            }
+            this.populateExistingAnswers(response.submittedAnswer);
           }, 50)
          
          
@@ -146,6 +150,23 @@ export class QuizQuestionComponent implements OnInit {
 
   leaveQuiz(template: TemplateRef<HTMLElement>) {
     this.dialog.open(template)
+  }
+
+  populateExistingAnswers(submittedAnswer: number[]) {
+    console.log(submittedAnswer);
+    if (this.currentQuestion.correctAnswer.length === 1) {
+      console.log(Array.from(document.querySelectorAll<HTMLElement>('mat-radio-button'))[submittedAnswer[0]])
+      Array.from(document.querySelectorAll<HTMLElement>('mat-radio-button .mat-radio-label'))[submittedAnswer[0]].click()
+      return
+    }
+
+    for (const answer of submittedAnswer) {
+      for (const option of this.multipleSelection.options) {
+        if (option.value === answer) {
+          option.toggle();
+        }
+      }
+    }
   }
 
 }

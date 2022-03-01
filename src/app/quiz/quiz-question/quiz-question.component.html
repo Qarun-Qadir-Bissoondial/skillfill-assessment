@@ -4,14 +4,20 @@
         <span *ngIf="!timerLoading">{{countdown | async | clocktime}}</span>
     </mat-toolbar>
 
-    <div class="container" *ngIf="!questionLoading">
-        <main class="question mt-4">
+    <div class="container question-wrapper">
+        <main class="question mt-4" *ngIf="!questionLoading">
             <h2>{{currentQuestionIndex + 1}}. {{currentQuestion.body}}</h2>
-            <mat-selection-list color="primary"  #answers>
+            <mat-selection-list *ngIf="currentQuestion.correctAnswer.length > 1; else singleSelection" color="primary" #multipleAnswers>
                 <mat-list-option *ngFor="let q of currentQuestion.possibleAnswers; let index=index" [value]="index">
                     {{index + 1}}. {{q}}
                 </mat-list-option>
             </mat-selection-list>
+
+            <ng-template #singleSelection>
+                <mat-radio-group color="primary">
+                    <mat-radio-button class="d-block py-3" *ngFor="let q of currentQuestion.possibleAnswers; let index=index" [value]="index">{{index + 1}}. {{q}}</mat-radio-button>
+                </mat-radio-group>
+            </ng-template>
 
             <footer class="actions d-flex justify-content-end py-2">
                 <button *ngIf="previousQuestionIndex > -1" mat-raised-button color="primary" class="mx-2" (click)="previous()">Previous</button>
@@ -21,7 +27,7 @@
         </main>
     </div>
 
-    <footer class="text-center pt-4 mt-4">
+    <footer class="text-center">
         <button mat-stroked-button color="warn" style="border: 1px solid red" (click)="leaveQuiz(leaveConfirmation)">Leave Quiz</button>
     </footer>
 
