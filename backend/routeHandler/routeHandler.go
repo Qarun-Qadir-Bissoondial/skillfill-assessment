@@ -1,6 +1,7 @@
 package routehandler
 
 import (
+	"fmt"
 	"skillfill-backend/database"
 	"skillfill-backend/models"
 
@@ -50,13 +51,25 @@ func (h *Handler) GetQuestion(database database.Database) func(*gin.Context) {
 	}
 }
 
+func (h *Handler) GetSubmittedAnswer(database database.Database) func(*gin.Context) {
+	return func(c *gin.Context) {
+		submittedAnswer := []int{}
+		questionID := c.Query("questionID")
+		quizID := c.Query("quizID")
+		uid := c.Query("uid")
+		err := database.Fetch(fmt.Sprintf("/submitted/%s/%s/%s", uid, quizID, questionID), &submittedAnswer)
+		if err != nil {
+			c.JSON(500, err)
+		}
+		c.JSON(200, submittedAnswer)
+	}
+}
+
 func (h *Handler) SubmitAnswer(database database.Database) func(*gin.Context) {
 	return func(c *gin.Context) {
 		s := models.SubmittedAnswer{}
-		b := map[string]int{}
 		c.BindJSON(&s)
-		b[s.QuestionID] = s.Submitted
-		err := database.Set("/submitted/"+s.QuizID, b)
+		err := database.Set("/submitted/"+s.Uid+"/"+s.QuizID+"/"+s.QuestionID, s.Submitted)
 		if err != nil {
 			c.JSON(400, map[string]string{
 				"message": "bad data",

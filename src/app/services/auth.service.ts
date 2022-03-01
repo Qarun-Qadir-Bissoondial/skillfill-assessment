@@ -6,15 +6,19 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  loggedIn: boolean
+  loggedIn: boolean;
+  user: firebase.default.User
 
   constructor(
     private auth: AngularFireAuth,
     private router: Router
     ) {
       this.auth.authState.subscribe(user => {
-        console.log(user?.uid)
-        this.loggedIn = user !== null
+        if (user !== null) {
+          console.log(user?.uid)
+          this.loggedIn = true;
+          this.user = user
+        }
 
         if (this.loggedIn) {
           this.router.navigateByUrl('/quiz/list')
@@ -24,5 +28,9 @@ export class AuthService {
 
   login(email: string, password: string){
     return this.auth.signInWithEmailAndPassword(email, password)
+  }
+
+  signOut() {
+    return this.auth.signOut()
   }
 }

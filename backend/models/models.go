@@ -21,5 +21,6 @@ type Question struct {
 type SubmittedAnswer struct {
 	QuizID     string `json:"quiz"`
 	QuestionID string `json:"question"`
-	Submitted  int    `json:"submittedAnswer"`
+	Submitted  []int  `json:"submittedAnswer"`
+	Uid        string `json:"uid"`
 }

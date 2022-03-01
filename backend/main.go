@@ -32,11 +32,13 @@ func main() {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:4200"},
-		AllowMethods: []string{"GET", "POST"},
+		AllowMethods: []string{"GET", "PUT"},
+		AllowHeaders: []string{"Content-Type"},
 	}))
 	r.GET("/quizList", handler.GetQuizList(fbDatabase))
 	r.GET("/quiz", handler.GetQuiz(fbDatabase))
 	r.GET("/question", handler.GetQuestion(fbDatabase))
+	r.GET("/submitted-answer", handler.GetSubmittedAnswer(fbDatabase))
 	r.PUT("/submit-question", handler.SubmitAnswer(fbDatabase))
 	r.Run()
 }

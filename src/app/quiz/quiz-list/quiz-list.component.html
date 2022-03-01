@@ -1,12 +1,13 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" class="justify-content-between">
     <h2>Quiz List</h2>
+    <button style="border: 1px solid white" mat-stroked-button (click)="signOut()">Sign out</button>
 </mat-toolbar>
 
 <main class="my-3 p-2">
     <mat-card *ngFor="let quiz of quizList | async | keyvalue">
         <mat-card-header>
             <mat-card-title>{{quiz.value.name}}</mat-card-title>
-            <mat-card-subtitle class="mt-2">{{quiz.value.questions.length}} questions. Time Limit: {{quiz.value.timeLimit}} seconds</mat-card-subtitle>
+            <mat-card-subtitle class="mt-2">{{quiz.value.questions.length}} questions <br> Time Limit: {{quiz.value.timeLimit}} seconds</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content class="px-3">
@@ -14,7 +15,22 @@
         </mat-card-content>
 
         <mat-card-actions class="py-2 mx-2 text-center border-top">
-            <button mat-raised-button color="primary">Start</button>
+            <button mat-raised-button color="primary" (click)="showInstructions(instructions, quiz.value.id)" >Start</button>
         </mat-card-actions>
     </mat-card>
 </main>
+
+<ng-template #instructions let-quiz>
+    <div class="container">
+        <h1 mat-dialog-title>Instructions</h1>
+        <mat-list>
+            <mat-list-item>- Work as quickly and as carefully as you can.</mat-list-item>
+            <mat-list-item>- Questions containing checkboxes have more than one correct answer.</mat-list-item>
+            <mat-list-item>- Keep an eye on your time limit!</mat-list-item>
+            <mat-list-item>- If you're stuck on a question, you can go to the next one and come back to it later.</mat-list-item>
+        </mat-list>
+        <div class="actions text-center py-3">
+            <button mat-raised-button color="primary" mat-dialog-close [routerLink]="'/quiz/'+quiz">Start</button>
+        </div>
+    </div>
+</ng-template>
