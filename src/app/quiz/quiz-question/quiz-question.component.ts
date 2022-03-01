@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectionList } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { concatMap, forkJoin, map, Observable, of, tap, timer } from 'rxjs';
+import { concatMap, forkJoin, map, Observable, of, tap, throwError, timer } from 'rxjs';
 import { Question, Quiz } from 'src/app/models/models';
 import { ApiService } from 'src/app/services/api.service';
 
@@ -42,6 +42,10 @@ export class QuizQuestionComponent implements OnInit {
     this.quizID = this.route.snapshot.params['quizID'];
 
     this.api.getQuiz(this.quizID).pipe(concatMap(q => {
+      if (q == null) {
+        return throwError(() => new Error('Invalid Quiz ID'))
+      }
+
       this.quiz = q;
       this.previousQuestionIndex = -1;
       this.currentQuestionIndex = 0;
@@ -62,12 +66,22 @@ export class QuizQuestionComponent implements OnInit {
       })
     })).subscribe({
       next: (response) => {
-        this.currentQuestion = response.question;
-        this.loading = false;
-        this.questionLoading = false;
-        setTimeout(() => {
-          this.populateExistingAnswers(response.submittedAnswer);
-        }, 50)
+        if (response.question == null) {
+          this.snack.open('Something went wrong!')
+          this.router.navigateByUrl('/quiz/list')
+        } else {
+          this.currentQuestion = response.question;
+          this.loading = false;
+          this.questionLoading = false;
+          setTimeout(() => {
+            this.populateExistingAnswers(response.submittedAnswer);
+          }, 50)
+        }
+       
+      },
+      error: () => {
+        this.snack.open('Something went wrong!')
+        this.router.navigateByUrl('/quiz/list')
       }
     });
   }
